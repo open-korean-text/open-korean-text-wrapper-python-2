@@ -8,7 +8,6 @@ import org.openkoreantext.processor.phrase_extractor.KoreanPhraseExtractor;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.openkoreantext.processor.tokenizer.Sentence;
 import scala.collection.Seq;
-import scala.collection.JavaConverters;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -26,18 +25,18 @@ public class OpenKoreanTextWrapper {
         }
 
         Seq<KoreanTokenizer.KoreanToken> scalaTokens = OpenKoreanTextProcessorJava.tokenize(text);
-        List<KoreanTokenizer.KoreanToken> tokens = JavaConverters.seqAsJavaList(scalaTokens);
+        List<KoreanTokenJava> tokens = OpenKoreanTextProcessorJava.tokensToJavaKoreanTokenList(scalaTokens);
         LinkedList<KoreanTokenJava> javaTokens = new LinkedList<>();
 
-        for (KoreanTokenizer.KoreanToken token : tokens) {
-            String tokenText = ((stem && token.stem().nonEmpty()) ? token.stem().get() : token.text());
-
+        for (KoreanTokenJava token : tokens) {
+            String tokenText = ((stem && !token.getStem().isEmpty()) ? token.getStem() : token.getText());
             KoreanTokenJava javaToken = new KoreanTokenJava(
                     tokenText,
-                    KoreanPosJava.valueOf(token.pos().toString()),
-                    token.offset(),
-                    token.length(),
-                    token.unknown()
+                    KoreanPosJava.valueOf(token.getPos().toString()),
+                    token.getOffset(),
+                    token.getLength(),
+                    token.isUnknown(),
+                    token.getStem()
             );
 
             javaTokens.add(javaToken);
